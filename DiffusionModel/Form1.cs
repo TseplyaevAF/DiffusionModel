@@ -14,8 +14,8 @@ namespace DiffusionModel
     {
         Bitmap bmp;
         Graphics g;
-        Pen pen;
-        const int CountMolecules = 100;
+        Pen pen_black, pen_blue;
+        const int CountMolecules = 500;
         const int CenterPictureX = 207;
         const int HeightPicture = 332;
         Random rnd = new Random();
@@ -24,18 +24,21 @@ namespace DiffusionModel
         {
             InitializeComponent();
             button_Stop.Visible = false;
-            pen = new Pen(Color.Black);
+            pen_black = new Pen(Color.Black);
+            pen_blue = new Pen(Color.Blue);
             bmp = new Bitmap(picture.Width, picture.Height);
             g = Graphics.FromImage(bmp);
-            pen.Width = 5;
+            pen_black.Width = 5;
+            pen_blue.Width = 5;
             DrawLine();
-            RandomDots();
+            Dots(pen_black, 'r');
+            Dots(pen_blue, 'l');
             InitializeTimers();
         }
 
         private void DrawLine()
         {
-            g.DrawLine(pen, CenterPictureX, 0, CenterPictureX, HeightPicture);
+            g.DrawLine(pen_black, CenterPictureX, 0, CenterPictureX, HeightPicture);
             picture.Image = bmp;
         }
 
@@ -52,20 +55,44 @@ namespace DiffusionModel
         private void InitializeTimers()
         {
             // Таймер для быстрой смены кадров
-            timer1.Interval = 100;
+            timer1.Interval = 10;
             timer1.Tick += new EventHandler(timer1_Tick);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             g.Clear(Color.FromArgb(122, 171, 211));
-            RandomDots();
+            RandomDots(pen_black);
+            RandomDots(pen_blue);
         }
 
-        private void RandomDots()
+        // Рисование точек слева и справа
+        private void Dots(Pen pen, char side)
         {
             int DotX, DotY;
-            for (int i = 0; i < CountMolecules; i++)
+            for (int i = 0; i < CountMolecules / 2; i++)
+            {
+                if (side == 'l')
+                {
+                    DotX = rnd.Next(0, CenterPictureX - 6);
+                    DotY = rnd.Next(5, HeightPicture - 6);
+                    g.DrawEllipse(pen, DotX, DotY, 5, 5);
+                    picture.Image = bmp;
+                }
+                if (side == 'r')
+                {
+                    DotX = rnd.Next(CenterPictureX + 6, (CenterPictureX * 2) - 6);
+                    DotY = rnd.Next(5, HeightPicture - 6);
+                    g.DrawEllipse(pen, DotX, DotY, 5, 5);
+                    picture.Image = bmp;
+                }
+            }
+        }
+
+        private void RandomDots(Pen pen)
+        {
+            int DotX, DotY;
+            for (int i = 0; i < CountMolecules/2; i++)
             {
                 int tmp;
                 bool flag = false;
@@ -87,7 +114,10 @@ namespace DiffusionModel
             button_Stop.Visible = false;
             timer1.Enabled = false;
             timer1.Stop();
+            g.Clear(Color.FromArgb(122, 171, 211));
             DrawLine();
+            Dots(pen_black, 'r');
+            Dots(pen_blue, 'l');
         }
     }
 }
